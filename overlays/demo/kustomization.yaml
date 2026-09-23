@@ -1,0 +1,25 @@
+# overlays/demo/kustomization.yaml
+#
+# Overlay que sincroniza Argo CD. En su estado actual está ROTO a propósito:
+# checkout en v2 sin PAYMENTS_API_URL.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: nerdearla-eks
+
+resources:
+  - ../../base
+
+patches:
+  - path: patch-deployment-v2.yaml
+    target:
+      kind: Deployment
+      name: checkout
+
+# NOTA: si construiste imágenes propias con scripts/build-push.sh y preferís
+# usarlas en lugar del enfoque "sin registry" (ConfigMap), descomentá y ajustá:
+#
+# images:
+#   - name: node:20-alpine
+#     newName: <ACCOUNT>.dkr.ecr.<REGION>.amazonaws.com/nerdearla-eks-checkout
+#     newTag: v2

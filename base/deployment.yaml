@@ -1,0 +1,56 @@
+# base/deployment.yaml — Deployment del checkout.
+#
+# Corre server.js (montado del ConfigMap) con la imagen pública node:20-alpine.
+# La VERSIÓN la controla la env APP_VERSION (la fija cada overlay).
+# El overlay "demo" la pone en v2 SIN PAYMENTS_API_URL -> CrashLoopBackOff.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout
+  labels:
+    app: checkout
+    Demo: nerdearla-eks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: checkout
+  template:
+    metadata:
+      labels:
+        app: checkout
+        Demo: nerdearla-eks
+    spec:
+      containers:
+        - name: checkout
+          image: node:20-alpine
+          command: ["node", "/app/server.js"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            # APP_VERSION lo define el overlay (base deja v1 por defecto).
+            - name: APP_VERSION
+              value: "v1"
+          # readiness/liveness: si el pod arranca, /healthz responde 200.
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+          volumeMounts:
+            - name: app-src
+              mountPath: /app
+      volumes:
+        - name: app-src
+          configMap:
+            name: checkout-app-src

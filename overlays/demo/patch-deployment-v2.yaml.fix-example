@@ -1,0 +1,24 @@
+# overlays/demo/patch-deployment-v2.yaml — VERSIÓN ARREGLADA (referencia).
+#
+# Este es el contenido que deja el PR de arreglo: v2 + PAYMENTS_API_URL tomado
+# del ConfigMap checkout-config. Copiá esto sobre patch-deployment-v2.yaml en la
+# rama del fix (lo hace prepare-fix-branch.sh) o dejá que el agente nerdearla-pr
+# lo genere.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout
+spec:
+  template:
+    spec:
+      containers:
+        - name: checkout
+          env:
+            - name: PORT
+              value: "8080"
+            - name: APP_VERSION
+              value: "v2"
+          # Arreglo: la env que faltaba, tomada del ConfigMap checkout-config.
+          envFrom:
+            - configMapRef:
+                name: checkout-config

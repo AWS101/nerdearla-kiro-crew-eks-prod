@@ -1,0 +1,13 @@
+# overlays/demo/configmap-checkout.yaml — ARREGLO (lo agrega el PR).
+#
+# ConfigMap con la configuración que faltaba: la URL del servicio de pagos
+# que v2 exige. El patch del Deployment referencia esta clave.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: checkout-config
+  labels:
+    app: checkout
+    Demo: nerdearla-eks
+data:
+  PAYMENTS_API_URL: "http://payments.nerdearla-eks.svc.cluster.local:8080"

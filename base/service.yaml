@@ -1,0 +1,16 @@
+# base/service.yaml — Service ClusterIP del checkout.
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout
+  labels:
+    app: checkout
+    Demo: nerdearla-eks
+spec:
+  type: ClusterIP
+  selector:
+    app: checkout
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080

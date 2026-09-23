@@ -1,0 +1,14 @@
+# overlays/oomkilled/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: nerdearla-eks
+
+resources:
+  - ../../base
+
+patches:
+  - path: patch-deployment-oom.yaml
+    target:
+      kind: Deployment
+      name: checkout

@@ -1,0 +1,28 @@
+# argocd/application.yaml — Application de Argo CD para el checkout.
+#
+# Terraform ya crea esta Application (módulo addons). Este archivo queda como
+# referencia versionada y para un patrón app-of-apps si se quisiera aplicar
+# manualmente:  kubectl apply -f argocd/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nerdearla-eks-checkout
+  namespace: argocd
+  labels:
+    Demo: nerdearla-eks
+spec:
+  project: default
+  source:
+    # CAMBIAR por la URL real del repo GitOps.
+    repoURL: https://github.com/CHANGE-ME/nerdearla-eks-gitops.git
+    targetRevision: main
+    path: overlays/demo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nerdearla-eks
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

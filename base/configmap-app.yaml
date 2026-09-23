@@ -1,0 +1,48 @@
+# base/configmap-app.yaml — Código de la app servido desde un ConfigMap.
+#
+# Enfoque SIN REGISTRY: para que la demo sea autónoma y no dependa de buildear
+# ni pushear imágenes, el Deployment monta este server.js y lo corre con la
+# imagen pública node:20-alpine. El comportamiento por versión lo controla la
+# env APP_VERSION del Deployment. Debe ser idéntico a app/server.js.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: checkout-app-src
+  labels:
+    app: checkout
+    Demo: nerdearla-eks
+data:
+  server.js: |
+    const http = require("http");
+    const APP_VERSION = process.env.APP_VERSION || "v1";
+    const PORT = parseInt(process.env.PORT || "8080", 10);
+    const PAYMENTS_API_URL = process.env.PAYMENTS_API_URL;
+
+    // v2 REQUIERE PAYMENTS_API_URL: si falta, una línea FATAL y exit 1.
+    if (APP_VERSION === "v2" && !PAYMENTS_API_URL) {
+      console.error(
+        "FATAL: falta la variable de entorno PAYMENTS_API_URL; el checkout no puede arrancar",
+      );
+      process.exit(1);
+    }
+
+    const server = http.createServer((req, res) => {
+      if (req.url === "/healthz") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok", version: APP_VERSION }));
+        return;
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({
+        service: "checkout",
+        version: APP_VERSION,
+        paymentsApi: PAYMENTS_API_URL || null,
+        message: "checkout ok",
+      }));
+    });
+
+    server.listen(PORT, () => {
+      console.log(
+        `checkout ${APP_VERSION} escuchando en :${PORT} (paymentsApi=${PAYMENTS_API_URL || "no-config"})`,
+      );
+    });

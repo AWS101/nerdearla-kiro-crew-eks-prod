@@ -1,0 +1,8 @@
+# base/namespace.yaml — Namespace de la app checkout.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nerdearla-eks
+  labels:
+    app.kubernetes.io/part-of: nerdearla-eks
+    Demo: nerdearla-eks

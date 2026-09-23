@@ -1,0 +1,26 @@
+# overlays/oomkilled/patch-deployment-oom.yaml
+#
+# Causa ALTERNATIVA de incidente: el checkout está en v1 (que funciona), pero
+# con un límite de memoria absurdamente bajo. El contenedor es OOMKilled al
+# arrancar y entra en CrashLoopBackOff con motivo OOMKilled.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout
+spec:
+  template:
+    spec:
+      containers:
+        - name: checkout
+          env:
+            - name: PORT
+              value: "8080"
+            - name: APP_VERSION
+              value: "v1"
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "8Mi"
+            limits:
+              # 8Mi es insuficiente para el runtime de Node -> OOMKilled.
+              memory: "8Mi"
