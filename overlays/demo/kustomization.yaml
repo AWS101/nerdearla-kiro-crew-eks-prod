@@ -9,6 +9,7 @@ namespace: nerdearla-eks
 
 resources:
   - ../../base
+  - configmap-checkout.yaml
 
 patches:
   - path: patch-deployment-v2.yaml

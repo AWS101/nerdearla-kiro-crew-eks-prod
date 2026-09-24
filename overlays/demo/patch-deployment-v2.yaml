@@ -21,4 +21,8 @@ spec:
             # Cambio de anoche: se subió a v2...
             - name: APP_VERSION
               value: "v2"
-            # ...pero FALTA PAYMENTS_API_URL. Esa es la causa del incidente.
+          # Arreglo: la env que faltaba (PAYMENTS_API_URL), tomada del
+          # ConfigMap checkout-config. Sin esto, v2 aborta al arrancar.
+          envFrom:
+            - configMapRef:
+                name: checkout-config
